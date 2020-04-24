@@ -22,29 +22,33 @@ namespace UCZ1.DAL
             using(var connection = new SqlConnection(connectionString))
             using(var command = new SqlCommand())
             {
-                connection.Open();
                 command.Connection = connection;
                 command.CommandText = $"SELECT Name, Type, AdmissionDate, OWNER.LastName FROM ANIMAL,OWNER  where ANIMAL.IdOwner=OWNER.IdOwner ORDER BY {orderBy}";
                 //command.Parameters.AddWithValue("orderBy", orderBy);
-                
+                connection.Open();
                 using (var reader = command.ExecuteReader())
                 {
-                    if(!reader.HasRows)
+                    if (!reader.HasRows)
                     {
-                        throw new Exception($"Error brak danych");
+                        throw new Exception("Error brak danych");
                     }
-                    response = new GetAnimalsResponse
+
+                    while (reader.Read())
                     {
-                        Name = reader["Name"].ToString(),
-                        AnimalType = reader["Type"].ToString(),
-                        DateOfAdmission = DateTime.Parse(reader["AdmissionDate"].ToString()),
-                        LastNameOfOwner = reader["LastName"].ToString()
-                    };
+                        response = new GetAnimalsResponse
+                        {
+                            Name = reader["Name"].ToString(),
+                            AnimalType = reader["Type"].ToString(),
+                            DateOfAdmission = DateTime.Parse(reader["AdmissionDate"].ToString()),
+                            LastNameOfOwner = reader["LastName"].ToString()
+                        };
+                    }
+
                 }
-
+                
             }
-
             return response;
+
         }
     
     }
